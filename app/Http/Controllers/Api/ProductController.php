@@ -15,7 +15,7 @@ class ProductController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api')->except(['index', 'show','update']);
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
     /**
@@ -83,15 +83,14 @@ class ProductController extends Controller
      */
     public function update(UpdateProduct $request, Product $product)
     {
-//        $loggedInUser = auth()->user();
-//        if (!$loggedInUser) {
-//            return response([
-//                "success" => false,
-//                "error" => "Sorry, you need to be logged-in to do that.",
-//                "data" => [],
-//            ], Response::HTTP_FORBIDDEN);
-//        }
-
+        $loggedInUser = auth()->user();
+        if (!$loggedInUser) {
+            return response([
+                "success" => false,
+                "error" => "Sorry, you need to be logged-in to do that.",
+                "data" => [],
+            ], Response::HTTP_FORBIDDEN);
+        }
         if($product->update($request->all())){
             return response()->json([
                 'success' => true,
@@ -110,7 +109,6 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-
         $loggedInUser = auth()->user();
         if (!$loggedInUser) {
             return response([
