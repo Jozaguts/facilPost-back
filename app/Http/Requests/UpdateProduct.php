@@ -27,7 +27,7 @@ class UpdateProduct extends FormRequest
             'name' => 'string ',
             'sale_price' =>'numeric',
             'discount' =>'numeric',
-            'image' =>'string',
+            'image' =>'mimes:jpeg,png|max:1014',
         ];
     }
 }

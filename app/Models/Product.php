@@ -10,5 +10,14 @@ class Product extends Model
 {
     use HasFactory,SoftDeletes;
 
+    const DISCOUNT = 0;
+    const IMAGE = 'https://fakeimg.pl/350x400/';
+
     protected $fillable =['name', 'sale_price', 'discount', 'image'];
+
+    protected $attributes = [
+        'discount' => self::DISCOUNT,
+        'image' => self::IMAGE,
+    ];
+
 }

@@ -9,6 +9,7 @@ use App\Http\Resources\ProductCollection;
 use App\Models\Product;
 use App\Http\Resources\Product as ProductResource;
 use Illuminate\Http\Request;
+use Symfony\Component\Console\Input\Input;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
@@ -23,9 +24,10 @@ class ProductController extends Controller
      *
      * @return ProductCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        return new ProductCollection(Product::paginate(9));
+
+        return new ProductCollection(Product::paginate( 9, ['*'], 'page', $request->from));
     }
 
     /**
@@ -81,23 +83,51 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function update(UpdateProduct $request, Product $product)
+    public function update(UpdateProduct $request, Product $product, $id)
     {
+
         $loggedInUser = auth()->user();
-        if (!$loggedInUser) {
-            return response([
-                "success" => false,
-                "error" => "Sorry, you need to be logged-in to do that.",
-                "data" => [],
-            ], Response::HTTP_FORBIDDEN);
-        }
-        if($product->update($request->all())){
-            return response()->json([
-                'success' => true,
-                'error' => '',
-                'data' => new ProductResource($product),
-            ], Response::HTTP_OK);
-        }
+            if (!$loggedInUser) {
+                return response([
+                    "success" => false,
+                    "error" => "Sorry, you need to be logged-in to do that.",
+                    "data" => [],
+                ], Response::HTTP_FORBIDDEN);
+            }
+             if($request->hasFile('image')) {
+                $filenameWithExt = $request->file('image')->getClientOriginalName();
+
+                $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+
+                $extension = $request->file('image')->getClientOriginalExtension();
+
+                $fileNameToStore = $filename.'_'.time().'.'.$extension;
+
+                $path = $request->file('image')->storeAs('public/images', $fileNameToStore);
+
+                $product = Product::find($id);
+                    $product->name = $request->name;
+                    $product->sale_price = $request->sale_price;
+                    $product->discount = $request->discount;
+                    $product->image = $path;
+                $product->save();
+                    return response()->json([
+                        'success' => true,
+                        'error' => '',
+                        'data' => new ProductResource($product),
+                    ], Response::HTTP_OK);
+            } else{
+                 $product = Product::find($id);
+                 $product->name = $request->name;
+                 $product->sale_price = $request->sale_price;
+                 $product->discount = $request->discount;
+                 $product->save();
+                 return response()->json([
+                     'success' => true,
+                     'error' => '',
+                     'data' => new ProductResource($product),
+                 ], Response::HTTP_OK);
+             }
 
     }
 
@@ -126,9 +156,9 @@ class ProductController extends Controller
             }
             return response([
                 "success" => true,
-                "error" => 'The product was deleted successfully',
+                "message" => 'The product was deleted successfully',
                 "data" =>  [],
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            ], Response::HTTP_OK);
         }
 
 

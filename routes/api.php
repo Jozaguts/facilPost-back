@@ -15,11 +15,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::ApiResource('products', ProductController::class);
+Route::ApiResource('products', ProductController::class)->except([
+    'index','update'
+]);
+Route::get('products/{from?}', [ProductController::class, 'index']);
+Route::put('products/{id}', [ProductController::class, 'update']);
 
-
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('login', [AuthController::class, 'login']);
 //
 //Route::middleware(['auth:sanctum'])->group(function () {
 ////    Route::get('/users', 'UserController@index');
 //});
+Route::post('users', [AuthController::class, 'register']);
