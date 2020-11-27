@@ -27,7 +27,7 @@ class StoreProduct extends FormRequest
             'name' => 'required|string ',
             'sale_price' =>'required|numeric',
             'discount' =>'numeric',
-            'image' =>'string',
+            'image' =>'nullable|max:1014',
         ];
     }
 }

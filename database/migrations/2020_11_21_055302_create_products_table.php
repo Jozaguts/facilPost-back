@@ -18,7 +18,7 @@ class CreateProductsTable extends Migration
             $table->string('name',60);
             $table->decimal('sale_price',5,2);
             $table->integer('discount')->default(0);
-            $table->text('image');
+            $table->text('image')->nullable(true);
             $table->id();
             $table->softDeletes();
             $table->timestamps();

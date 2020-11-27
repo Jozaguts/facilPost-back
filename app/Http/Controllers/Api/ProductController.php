@@ -46,15 +46,47 @@ class ProductController extends Controller
                 "data" => [],
             ], Response::HTTP_FORBIDDEN);
         }
-            $product =  Product::create($request->all());
 
-            if($product){
-                return response()->json([
-                    'success' => true,
-                    'error' => '',
-                    'data' => new ProductResource($product),
-                ], Response::HTTP_OK);
-            }
+        if($request->hasFile('image')) {
+            $filenameWithExt = $request->file('image')->getClientOriginalName();
+
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+
+            $extension = $request->file('image')->getClientOriginalExtension();
+
+            $fileNameToStore = $filename.'_'.time().'.'.$extension;
+
+            $path = $request->file('image')->storeAs('public/images', $fileNameToStore);
+
+            $product = Product::create([
+                'name' =>  $request->name,
+                'sale_price' =>$request->sale_price,
+                'discount' => $request->discount,
+                'image' => $path
+            ]);
+            return response()->json([
+                'success' => true,
+                'error' => '',
+                'data' => new ProductResource($product),
+            ], Response::HTTP_OK);
+        }
+        else{
+            $product =  Product::create($request->all());
+            return response()->json([
+                'success' => true,
+                'error' => '',
+                'data' => new ProductResource($product),
+            ], Response::HTTP_OK);
+        }
+//            $product =  Product::create($request->all());
+//
+//            if($product){
+//                return response()->json([
+//                    'success' => true,
+//                    'error' => '',
+//                    'data' => new ProductResource($product),
+//                ], Response::HTTP_OK);
+//            }
 
 
     }
@@ -116,7 +148,8 @@ class ProductController extends Controller
                         'error' => '',
                         'data' => new ProductResource($product),
                     ], Response::HTTP_OK);
-            } else{
+            }
+             else{
                  $product = Product::find($id);
                  $product->name = $request->name;
                  $product->sale_price = $request->sale_price;
